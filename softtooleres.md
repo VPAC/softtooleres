@@ -2,6 +2,9 @@
 
 # Contents
 
+Regular Expression
+Git
+
 # Regular Expressions
 
 ## What Are Regular Expressions?
@@ -10,6 +13,8 @@ Regular Expressions ("RegEx") are general character pattern notations that provi
 
 The origins of regular expressions come from a combination of mathematics, linguistics, and computer science. The first formal development was by Stephen Cole Kleen who described a mathematical "regular language" in 1951 that would be located as a Type-3 grammer in the hierarchy developed by Noam Chomsky in 1956, which a finite-state machine will recognise.
 
+<img src="https://raw.githubusercontent.com/UoM-ResPlat-DevOps/SpartanRegEx/master/Images/chomsky-hierarchy.png" /> 
+
 > Fun fact. Stephen Cole Kleene also wrote an alternative proof to Gödel's incompleteness theorems that were easier to understand. From this it has been quipped that "Kleeneness is next to Gödelness".   
 
 The first major computational use was in 1968 through pattern matching in the QED ("quick editor") text editor. QED was originally written in 1965 and was designed for teleprinter usage. When Ken Thompson wrote a version for the Compatible Time-Sharing System (CTSS) in 1968 a level of regular expressions were introduced. At around the same researchers, including Douglas T. Ross, implemented a regular expression engine in compiler design.
@@ -17,6 +22,13 @@ The first major computational use was in 1968 through pattern matching in the QE
 The regular expression system in QED was ported to `ed` in 1969 to become a foundation of the UNIX operating system. Within `ed` the function for searches was `g/re/p`, "global search for regular expreesion and print (to standard output). The functionality was considered so useful that Ken Thompson used the logic from `ed` and wrote the first version of`grep` overnight in November 1974.
 
 Apart from `grep`, other major applications in the regular expression wolrd include `sed` ("stream editor", 1974), `awk` (named after its authors "Aho, Weinberger, Kernighan", a data-driven scripting language, first release 1977), `perl` (often given the common backronym "Practical Extraction and Reporting Language", first released 1987). Many other programming languages use regular expression engines, but the aforementioned are considered the main foundations.
+
+Various UNIX-derived operating systems are famous for an orientation towards plain-text, especially as a file format for data, configuration, and of course, commans. UNIX loves text! This provides opportunities for a great deal of power and discovery, but also for obsfucation.
+
+> The string is a stark data structure and   
+everywhere it is passed there is much duplication of process.   
+It is a perfect vehicle for hiding information.    
+--Alan Perlis
 
 ## Metacharacters
 
@@ -28,33 +40,46 @@ The entire suite of metachaarcters that require an escape for their literal incl
 
 In addition to these metacharacters there are also metacharacters that are not escaped by the backslash. This includes the aforementioned normal and curled bracket characters and the `-` character which is used to indicated ranges within a square-bracket set.
 
-Metacharacters are so important to understanding regular expressions and so common across the core applications it is worth establishing a thorough understanding of them early. The following outlines the major metacharacters, their meaning, and an example using the search utility `grep`. Note that a metacharacter can have different meanings *within* regular expressions. The caret symbol, can either stands as beginning of a line anchor *and* a negation symbol in a set range. 
+Metacharacters are so important to understanding regular expressions and so common across the core applications it is worth establishing a thorough understanding of them early. The following outlines the major metacharacters, their meaning, and an example using the search utility `grep`. Note that a metacharacter can have different meanings *within* regular expressions. The caret symbol, can either stands as beginning of a line anchor *and* a negation symbol in a set range. Like other *nix-like system this environment is case-sensitive. Metacharacters that are used outside of their context, even within a regular expression, will be treated as literal character.
 
-| Metacharacter | Explanation         | Example                                          |
-|:--------------|:-------------------|:-----------------------------------------------|
-| ^             | Beginning of line anchor   | `grep '^row' /usr/share/dict/words`       |
-| $             | End of line anchor         | `grep 'row$' /usr/share/dict/words`       |
-| .             | Any single character       | `grep '^...row...$' /usr/share/dict/words` |
-| *             | Match zero plus preceding characters | `grep '^...row.*' /usr/share/dict/words`   |
-| [ ]           | Matches one in the set                 | `grep '^[Pp].row..$' /usr/share/dict/words`   |
-| [x-y]         | Matches on in the range                | `grep '^[s-u].row..$' /usr/share/dict/words`   |
-| [^ ]          | Matches one character not in the set   |  `grep '^[^a].row..$' /usr/share/dict/words`   |
-| `|`     	| Logical OR   |  `grep '^[^a|P].row..$' /usr/share/dict/words`   |
-| [^x-y]        | Matches any character not in the range | `grep '^[^a-z].row..$' /usr/share/dict/words`   |
-| \             | Escape a metacharacter |  `grep '^A\.$' /usr/share/dict/words`	|
+**Metacharacter Examples**
+
+| Metacharacter | Explanation                           | Example                                       |
+|:--------------|:--------------------------------------|-----------------------------------------------|
+| ^             | Beginning of string anchor            | `grep '^row' /usr/share/dict/words`           |
+| $             | End of string anchor                  | `grep 'row$' /usr/share/dict/words`           |
+| .             | Any single character                  | `grep '^...row...$' /usr/share/dict/words`    |
+| *             | Match zero plus preceding characters  | `grep '^...row.*' /usr/share/dict/words`      |
+| [ ]           | Matches one in the set                | `grep '^[Pp].row..$' /usr/share/dict/words`   |
+| [x-y]         | Matches on in the range               | `grep '^[s-u].row..$' /usr/share/dict/words`  |
+| [^ ]          | Matches one character not in the set  | `grep '^[^a].row..$' /usr/share/dict/words`   |
+| `|`           | Logical OR                            | `grep '^[^a|P].row..$' /usr/share/dict/words` |
+| [^x-y]        | Matches any character not in the range| `grep '^[^a-z].row..$' /usr/share/dict/words` |
+| \             | Escape a metacharacter                | `grep '^A\.$' /usr/share/dict/words`          |
+| \<  \>        | Beginning and end word boundaries     | `grep '\<cat\>' /usr/share/dict/words`        | 
+
+Note that the examples use strong quotes for search term to prevent the possibility of inadvertant shell expansion. If shell expansion, variable substitution etc is desired then use weak quotes. Note that the `.` is _lazy_ (it matches _any_ character, including those you might not want or need) and the `*` is _greedy_ (it matches 0 or more preeceding characters).
+
+In the chapter resources directory on github try the following on the file problem.txt:
+grep '".*"' problem.txt
+grep -o '"[^"]\+"' problem.txt
+
+The second example (grep, matching only, negate set of any characters except quote, add match at least once) is much more complex, but gives the right answer.
+
+**Metacharacter Class Statements**
 
 In addition to singular metacharacters there are also character classes, which take a common range statement. For example the class '[[:alpha:]]' is the equivalent of the range [A-Za-z] and [:punct:]  is equivalent of [][!"#$%&'()*+,./:;<=>?@\^_`{|}~-] . POSIX requires that classes must be expressed within square brackets, which does have the advantage to extend outside the class (e.g., [[:upper::]0] would match with all upper case alphabet characters and the number 0.
 
 | Metacharacter | Explanation                                           |
 |---------------|-------------------------------------------------------|
-| [:digit:]	| Only the digits 0 to 9                                |
-| [:alnum:]	| Alphanumeric characters 0 to 9 OR A to Z or a to z.	| 
-| [:alpha:]	| Alpha character A to Z or a to z.                 	|
-| [:blank:]	| Space and TAB characters only.                        |
-| [:lower:]	| Lower case characters					|
-| [:punct:]	| Punctuation characters				|
-| [:upper:]	| Upper case characters					|
-| [:xdigit:]	| Hexadecimal digits					|
+| [:digit:]     | Only the digits 0 to 9                                |
+| [:alnum:]     | Alphanumeric characters 0 to 9 OR A to Z or a to z.   | 
+| [:alpha:]     | Alpha character A to Z or a to z.                     |
+| [:blank:]     | Space and TAB characters only.                        |
+| [:lower:]     | Lower case characters                                 |
+| [:punct:]     | Punctuation characters                                |
+| [:upper:]     | Upper case characters                                 |
+| [:xdigit:]    | Hexadecimal digits                                    |
 
 Assuming that the requests are not contradictory metacharacters can be combined. For example, `^$` represents blank lines, `^firstword.*lastword$` would search for a line of text that starts with "firstword" and ends with "lastword" and contains anything in between.
 
@@ -66,46 +91,440 @@ A typical formal structure is a search for a pattern with Boolean logic, groupin
 
 The usual action of `grep` is to search for a given string in one or more files with the standard syntax of grep "STRING" FILES (e.g., `grep "ELM" gattaca.txt`). 
 
-Metacharacters can be combined in an interesting manner with grep options. For example; (i) using grep to count the number of empty lines in a file; `grep -c '^$' filename` (ii) a search for words with no vowels; `grep -v "[aeiou]" /usr/share/dict/words`, (iii) a case-insensitive search for lines that start with QANTAS, and only QANTAS (not QANTAS1, for example), in all files in the specified directory. `grep -iw "^QANTAS" /usr/local/dict/*` - Antipodeans might be surprised (and disappointed) by this result.
+**Grep with Metacharacters**
+
+Metacharacters can be combined in an interesting manner with grep options.  
+
+Some examples of grep options with metacharacters.
+
+
+* Print only the matched parts of a matching line with separate outline lines.
+grep -o '"[^"]\+"' filename
+
+* Count the number of empty lines in a file, '-c' is count.
+grep -c '^$' filename
+
+* Search for words without standard vowels, '-v' is invert match.
+grep -v '[aeiou]' /usr/share/dict/words
+
+* Case-insensitive search for lines that start with QANTAS, and only QANTAS (not QANTAS1, for example), in all files in the specified directory, and specify the line number in the file(s) that it appears in. The options '-i', '-w', '-n' are case-insensitive, whole word, and line-number respectively.
+grep -iwn '^QANTAS' /usr/share/dict/*
+
+**Faster Grep**
+
+Localisation settings might slow down your grep search. Prefixing the search with LC_ALL forces applications to use the same language (US English). This speeds up grep in many cases because it is a singl-ebyte comparison rather than multi-byte (as is the case with UTF8).  It is not appropriate if you are searching file with non-ASCII standard characters!
+
+Use of `grep -F` (or `fgrep`) interprets the search pattern as a fixed string, rather than a regular expression - which means that one does not need any regular expression escape characters. If one is searching for strings rather than patterns this can be faster.
+
+Examples:
+
+`time grep -i searchterm *`
+`time LC_ALL=C grep searchterm *`
+`time grep -F searchterm *`
+
+**Multiple Greps**
+
+The option `-l` with grep will print only the name of the each input file which matches the regular expression. This can be used with xargs to search multiple files for multiple search terms.
+
+Example:
+
+Search through a directory of build scripts for those files that use the Tarball block, have an installstep parameter, and use the dummy toolchain.
+
+grep -l 'Tarball' * -R | xargs grep -l 'installstep' | xargs grep -l 'dummy'
+
+**Parallel Grep**
+
+With GNU parallel or by piping find with xargs to grep, grep can be run in parallel. 
+
+This is especially useful when you have are searching through a lot of files or a large file.
+
+For example:
+
+`time find . -type f -print0 | parallel -k -j200% -n 1000 -m grep -i 'searchterm' {} > output3`
+
+or 
+
+`find . -type f -print0  | xargs -0 -P 8  grep 'searchterm' files > output`
+
+For big files, it can be split into chunks with the --pipe and --block options.
+
+`parallel -j200% --pipe --block 2M LC_ALL=C grep -F 'searchterm' < bigfile`
 
 ## Editing with `sed`
 
-As the name implies `sed` is a *stream editor*, which means it takes a data stream in a non-interactive mode, makes the changes according to a regular expression, and sends the results to standard output. By default it does not change the original data stream, which is typically a file. It *could* be used to use the data stream source as input from a keyboard, but this would be an unusual use of the application. More typically it is used for massive and rapid search and replaces on a number of documents, various forms of data cleaning (e.g., removing trailing whitespace), or conversion from one type of text markup to another (e.g., from a wiki syntax to html or troff etc).
+As the name implies `sed` is a *stream editor*, which means it takes a data stream in a non-interactive mode, makes the changes according to a regular expression, and sends the results to 
+standard output. By default it does not change the original data stream, which is typically a file. It *could* be used to use the data stream source as input from a keyboard, but this would be an unusual use of the application. More typically it is used for massive and rapid search and replaces on a number of documents, various forms of data cleaning (e.g., removing trailing whitespace), or conversion from one type of text markup to another (e.g., from a wiki syntax to html or troff etc).
 
-The general form is `sed [OPTION] [SCRIPT] [INPUT]`. Common options are `e` (multiple scripts per command), `-f` (add script file) and `-i` (in-place editing). For example, `sed 's/^/     /' gattaca.txt` to insert five spaces at the beginning of each line from the input stream of `gattaca.txt` or `sed '/ELM/s/Q/\$/g' gattaca.txt` to substitute all instances of 'Q' with '$' (note escape character) on lines that start with 'ELM'. 
+The general form is `sed [OPTION] [SCRIPT] [INPUT]`. Common options are `e` (multiple scripts per command), `-f` (add script file) and `-i` (in-place editing). By default sed sends results in standard output (i.e., the screen). If a change to the file is desired, use the -i option, and consider making a backup of the original by passing an argument. Or redirect output to a newfile. e.g.,
 
-As examples of data-cleaning, `sed /^$/d $filename` will remove all blank lines from a file, whereas 
-`sed s/ *$// $filename` will delete all spaces at the end of every line. Another issue, which used to be more common than it is now, is converting MS-Windows text files to *nix formats and vice versa. To translated *nix files to MS-Windows files a carriage return needs to be added to the end of each line, whereas to translate from MS-Windows to *nix, the carriage return marker needs to be removed. The two commands to do this are `sed s/$/\r/g' $filename`, and `sed 's/\r$//g' $filename` respectively.
+`sed 's/search/replace/g' file`
+`sed 's/search/replace/g' file > newfile`
+`sed -i 's/search/replace/g' file`
+`sed -i.bak 's/search/replace/g' file`
 
-"The sed $HOME" (`http://sed.sourceforge.net/`). In particular there is a popular list one-line sed commands (`http://sed.sourceforge.net/sed1line.txt`)
+**Substitutions**
+
+Substitions are the most common command in sed. It changes data in the stream from one value to another, line-by-line. It's a 'search-and-replace' but with a regular expression language.
+
+The general approach is `sed 's/search/replace/g' file`. Without the `g` (global) the substitution will stop at the first instance. Another common option is `I` for case-insensitive search e.g.,
+
+`sed 's/search/replace/gI file`.
+
+Try these commands with the gattaca.txt file e.g.,
+
+`sed 's/^/     /' gattaca.txt`
+`sed '/ELM/s/Q/\$/g' gattaca.txt`
+
+| Command                   | Explanation                                                                  |
+|---------------------------|:-----------------------------------------------------------------------------|
+| `sed 's/^/     /'`        | Insert five whitespaces at the beginning of every line.                      | 
+| `sed '/baz/s/foo/bar/g'   | Substitute all instances of 'foo' with 'bar' on lines that start with 'baz'  |
+| `sed '/baz/!s/foo/bar/g'` | Substitute "foo" with "bar" except for lines which contain "baz"             |
+| `sed /^$/d`               | Delete all blank lines.                                                      |
+| `sed s/ *$//`             | Delete all spaces at the end of every line.                                  |
+| `sed 's/$/\r/g'`          | *nix to MS-Windows, adds CR.                                                 | 
+| `sed 's/\r$//g'`          | MS-Windows to *nix, removes CR                                               |
+
+A popular list of one-line sed commands can be found at the following URL 
+http://sed.sourceforge.net/sed1line.txt
+
+See also books, scripts, games, and tools from "the sed $HOME"
+http://sed.sourceforge.net/
+
+**Printing and Deleting**
+
+The commands `p` and `d` print and delete the lines where a regular expression is found, respectively.
+
+`sed -n /ELM/p gattaca.txt`
+`sed /ELM/d gattaca.txt`
+
+Without the `-n` it will output the file, gattaca.txt, and print the ELM line a second time.
+
+With the `d` option it will output the file, gattaca.txt, with the ELM line deleted.
+
+Adding the `w` option will print out the selection line to a new file.
+
+sed 's/ELM/LUV/gw selection.txt' gattaca.txt
+
+**Quoting**
+
+Generally strong quotes are recommended for regular expressions. However, sed often wants to use weak quotes to include (for example) variable substitution.  Consider for example, a job run which searches for a hypothetical element and comes with the result of Unbihexium. This is the equivalent of:
+
+`UnknownElement = Unbihexium`
+`echo $UnknownElement`
+
+A file where the search term UnknownElement exists could be replaced with Unbihexium with:
+
+`sed "s/UnknownElement/$UnknownElement/g" filename`
+
+Another issue is conducting substitutions with single quotes in the stream, in which case double-quotes are an appropriate tool.
+
+sed "s/ones/one's/" <<< 'ones thing'
+
+Another method is to replace each embedded single quote with the sequence: '\'', i.e., quote backslash quote quote, which closes the string, appends an escaped single quote and reopens the string. 
+
+The sed metacharacter, `&` can be used as variable for the selection term. For example, a list of telephone numbers could have the first two digits selected and then surrounded by parantheses for readability.
+
+`sed 's/^[[:digit:]][[:digit:]]/(&) /' phonelist.txt`
+
+A repeated term can be invoked with curly braces and a number representing how often the term should be repeated. 
+
+The above example could be re-written as:
+
+`sed -E 's/^[[:digit:]]{2}/(&) /' phonelist.txt`
+
+**Selections in sed**
+
+
+Occurances and lines can be specified with sed. For example, the second instance of A can be replacd with T with the following command:
+
+`sed 's/A/T/2' simple1.txt`
+
+Or replace every instance after the second.
+
+`sed 's/A/T/g2' simple1.txt`
+
+Or only replace every instance after the second on the second line.
+
+`sed '2s/A/T/g2' simple1.txt`
+
+Or for specific lines.
+
+`sed '1,2d' gattaca.txt`
+`sed -n '1,2p' gattaca.txt`
+
+`sed -n '1,3p' gattaca.txt` or `sed -n 1,+2p gattaca.txt`
+
+`sed -n '1,3!p' gattaca.txt` 
+
+`sed '1~2d' gattaca.txt`
+
+One can add new material to a file in such a manner with the insert option:
+
+`sed '1,2 i\foo' file` or `sed '1,2i foo' file` 
+
+**Multiple Commands and Backrefences**
+
+Multiple commands in sed can be applied with the -e option or with semi-colon separation between commands.
+
+The following selectively prints lines 1,2 and 5,6.
+
+`sed -n '1,2p; 5,6p' file` or `sed -n -e '1,2p' -e '5,6p' file`  
+
+Like the ampersand metacharacter, a backreference defines a region in a search and then allows that region to be backreferenced. A statement with a backreference is actually beyond being a regular language.
+
+Regions are established by parentheses and then referenced by \1, \2 etc. For example;
+
+`sed -E 's/([A-Z]*)([A-Z]*)([A-Z]*)/First Column \1 Second Column \2 Third Column \3/' gattaca.txt`
 
 ## Reporting Structured Data with `awk`
 
 As a data driven programming language `awk` is particularly good at understanding and manipulating text structured by fields - such as tables of rows and columns. Unlike `grep`, which searches for strings from an input, or `sed`, which carries out editing on the same, `awk` offers more computational options. The organisation of an `awk` program follows the form: pattern { action }. This is sometimes structured with BEGIN and END which specify actions to be taken before any lines are read, and after the last line is read. 
 
+There are many variants of awk, but the most common is GNU awk (often called 'gawk'). This resource is written with GNU awk assumed. To check that you have this, run the version command.
+
+`awk --version`
+
+**Internal Field Separator**
+
 The easiest and certainly one of the most common uses of awk is create reports from structured data.
 Columns and rows are referenced by number (e.g., `print $1` for the first column, `NR>1` for all rows greater than 1) and by default the space acts as the delimiter. To modify this use `awk -F,` (or `awk -F ','`) to use, for example, the comma as the delimiter. Other shell commands can be included in `awk`. 
 
-To give several examples of this:
+By default awk uses a space as the internal field separator. To use a comma invoke with `-F` e.g. `awk -F"," '{print $3}' quakes.csv`
 
-`awk -F"," '{print $3}' quakes.csv`
+Adding new separators to the standard output print of multiple fields is recommended - otherwise AWK will print without any separators. For example; 
+
 `awk -F"," '{print $1 " : " $3}' quakes.csv`
+`awk -F"," '{print $1 "\t" $3}' quakes.csv`
+
+Other shell commands can be piped through awk
+
 `awk -F"," '{print $1 " : " $3 | "sort"}' quakes.csv | less`
+
+**Selecting Content**
+
+A matched pattern in a line can be printed:
+
+`awk '/ATVK/ {print $0}' gattaca.txt`
+`awk '/ATVK/ {print $2}' gattaca.txt`
+
+The usual metacharacters can be used.
+
+`awk '/^ATVK/' gattaca.txt`
+`awk '/QLQA$/' gattaca.txt`
+
+The inbuilt `length` command can be used to print lines of a particular length. Note the double equals syntax.
+
+`awk 'length($0) == 28' gattaca.txt`
+
+`awk '{ if (((length($1) == 10 ) && length($2) == 10) && (length($3) == 10 || length($3) == 5)) && length($4) == 10)) && length($5) == 10)) print }' gattaca.txt`
+
+Whereas row numbers are specified by $num, 'NR' specifies the row number. More examples:
+
 `awk -F"," 'END {print NR}' quakes.csv`    
 `awk -F"," 'NR>1{print $3 "," $2 "," $1}' quakes.csv`   
-`awk -F"," '(NR <2) || (NR!=6) && (NR<9)' quakes.csv > selection.txt`   
+`awk -F"," '(NR <2) || (NR!=6) && (NR<9)' quakes.csv > selection.txt` 
 
-Other useful awk one-liners make use of the arithmetic functions of this programming language, such as printing  the total number of fields in $file, or printing the sum of the fields (columns) of every line (row); NF is number of field. For example:
+**Inserting Text**
 
-`awk '{totalf = totalf + NF }; END {print totalf}' $file`
-`awk '{sum=0; for (i=1; i<=NF; i++) sum=sum+$i; print sum}' $file`    
-[EDIT]
+The printf can add text to a file.
 
-Thus `awk`, in addition to reporting information, can also use arithmetic operators with the structured data and execute and process shell commands. Later examples will be given where variables, loops, and conditionals are applied along with functions and multiple input streams.
+`awk 'BEGIN{printf "The nucleotide data is in the second line following, the sixth line, etc.\n"}{print}' test-high-gc-1.fastq | less`
 
-A collection of basic `awk` one-liners are at: `http://www.pement.org/awk/awk1line.txt`.
+**References**
+
+A collection of `awk` one-liners are at: `http://www.pement.org/awk/awk1line.txt`. The file test-high-gc-1.fastq is from Washington State University, Data Progamming Course.
 
 ## Basic and Extended Regular Expressions
+
+POSIX has three sets of RegEx standards, BRE (Basic Regular Expressions), ERE (Extended Regular Expressions) and SRE (Simple Regular Expressions). SRE is deprecated. Basic Regular Expressions (BRE) are the earliest POSIX standard. The grep command uses these by default.
+
+The Free Software Foundation (FSF) through the GNU utilities extended the basic regular expressions to give additional characters special meaning (i.e., more metacharacters). GNU built on the POSIX tools so that BREs will provide ERE functionality when a backslash is invoked, whereas EREs require the backslash to suppress the metacharacter functionality. 
+
+With BRE the following metacharacters must be preceeded by an escape \ to enable their special meaning. `?  +  {  } |  (  ) `
+
+ERE adds the '?', '+', and '|' metacharacters, and it removes the need to escape the metacharacters '(' ')' and '{' '}', which is required in BRE. ERE can be invoked with `grep -E` and `sed -r` or `sed -E`.
+
+For an illustration, try the following, using grep's BRE.
+
+`grep '^Geoff|^Jeff' /usr/share/dict/words`
+
+Now escape the characters and alternation will apply.
+
+`grep '^Geoff\|^Jeff' /usr/share/dict/words`
+
+Or use extended regular expressions with grep.
+
+`grep -E '^Geoff|^Jeff' /usr/share/dict/words`
+
+Parentheses are used to group a character set.
+
+grep '\(^Geoff\|^Jeff\)\(rey$\|ery$\)' /usr/share/dict/words
+
+grep -E '(^Geoff|^Jeff)(rey$|ery$)' /usr/share/dict/words
+
+The question mark makes the preceding character optional in the regex.
+
+grep -w '^colou\?r' /usr/share/dict/words
+grep -wE '^colou?r' /usr/share/dict/words
+
+The '*' and '?' are well-known metacharacters for 'any' (including none) or 'one optional' character respectively. In regex the character '+' represents 'one or more', a non-greedy metacharacter. Note that the '?' metacharacter has a different meaning in regular expressions to the shell metacharacter '?'.
+
+For example:
+
+Search for all files in a directory that start with a website URL
+`grep -Ei '^https?' * | less`
+
+A search in gattaca.txt using BRE and ERE.
+
+`grep 'KK\+' gattaca.txt`
+`grep -E 'KK+' gattaca.txt`
+
+**BRE, ERE, and sed**
+
+The sed utility supports *most* basic regular expressions. In addition the \n sequence in a regular expression matches the newline character and \t for tabs.
+
+To invoke extended regular expressions there is an undocumented feature in sed for Linux which uses -E, -r, or --regexp-extended with the command.
+
+Consider the results of the following:
+
+`sed 's/QQLQ?//' gattaca.txt`
+
+and compare to
+
+`sed -E 's/QQLQ?//' gattaca.txt`
+
+**Backreferences**
+
+Regular expressions can also backreference (which is technically beyond being a regular language), that is match a previous sub-expression with the values \1, \2, etc. The following is a useful example where one can search for any word (case-insensitive, line-numbered) and see if that word is repeated, catching common typing errors such as 'The the'. Note the multiple ways of doing this.
+
+grep -inw '\([a-z]\+\) \+\1' file
+
+grep -Einw '([a-z]+) +\1' file
+
+grep -Ein '\<([a-z]+) +\1\>' file
+
+Another similar example, matching repeat characters rather than words (hencem no -w).
+
+grep '\([A-Z]\)\1' gattaca.txt
+
+An example to append the string "EXTRA TEXT" to each line.
+
+sed -e 's/\(.*\)/\1EXTRA TEXT/'
+
+**The awk programming language and ERE**
+
+Contemporary implementations of awk language uses the ERE engine to process regular expression patterns.
+
+Note there are slight variations in different implementations of the awk programming language which can have significant effects.
+
+For example, if an escape character precedes a character that is not a regular expression, most version of awk will ignore it. Others however, will treate the backslash as a little character and include it.
+
+For example:
+
+`awk '/QL\QA$/' gattaca.txt` will be treated like `awk '/QLQA$/' gattaca.txt` in most contemporary versions of awk. Some however will treat `awk '/QL\QA$/' gattaca.txt` and `awk '/QL\\QA$/' gattaca.txt` as equivalent.
+
+
+* A regular expression is limited by a finite number of internal states and termination states. A lot of code (e.g., html), scripts, or programming languages, that can nest arbitrarily deep, and the expression will need to have a means to recall the previous elements that it has opened (in html, for example). 
+* This said, arbitrary elements can be parsed with a regular expression. It requires several steps and will probably require some hand-editing. Works OK for small-scale changes! e.g., `http://levlafayette.com/node/128`
+* READ: `http://htmlparsing.com/regexes.html`
+* Consider using a language-approriate parser instead (e.g., HTML Tidy, lex/yacc/bison, ANTLR etc)
+
+
+
+-- *Slide* --
+<img src="https://raw.githubusercontent.com/UoM-ResPlat-DevOps/SpartanRegEx/master/Images/regexhtml.png" /> 
+-- *Slide End* --
+
+-- *Slide* --
+## Part 2: Shells and Shell Scripting
+* Variety of shells; sh, bash, csh, tcsh, ksh, zsh, fish, nadvsh. Environment modification. 
+* Shell scripting allows for automation; variables, loops, conditionals, functions.
+* Elaboration and examples in `/usr/common/common/RegEx/scripting.md`
+* Remember `awk` is a fully-fledged programming language. See `/usr/local/common/RedEx/advawk.md`
+-- *Slide End* --
+
+-- *Slide* --
+<img src="https://imgs.xkcd.com/comics/regex_golf.png" />
+-- *Slide End* --
+
+-- *Slide* --
+## Part 3: Perl Regular Expressions 
+* Perl is largely derived from `sed`, `awk`, but also with additional programming functions. 
+* Perl RegEx has additional functionality includes lazy matching, backtracking, named capture groups, and recursive patterns. Similar syntax used in Javascript, Python, Ruby, XML Schema.
+* Elaboration and examples in `/usr/local/common/RegEx/perl.md`, `metaperl.pl`, `radio.pl`
+-- *Slide End* --
+
+-- *Slide* --
+## Part 3: Capture Groups, Lookarounds
+* Groups allow for match against a previously established match. Lookarounds apply a condition to matches.
+* When there is a successful match, Perl provides the variables $1, $2, etc to hold the text matched by their their parenthesis subexpressions. See input variables in `names.pl` and `tempconv.pl`
+* Note that the variables are not assigned if they do not match, and they do not clear!
+-- *Slide End* --
+
+-- *Slide* --
+<img src="https://imgs.xkcd.com/comics/regular_expressions.png" />
+-- *Slide End* --
+
+-- *Slide* --
+## Part 3: Perl Compatible Regular Expressions
+* Perl Compatible Regular Expressions (PCRE). Library written in C (1997), considered more powerful and flexible than POSIX. Incorporated into scripting languages like R and PHP. 
+* Not the default in Perl! From Perl 5.10, PCRE is available as a replacement for Perl's default regular expression engine.
+* Functionality includes Just-in-time compiler support, flexible memory management, consistent escaping rules, extended character classes, minimal matching, unicode character support, etc.
+-- *Slide End* --
+
+-- *Slide* --
+<img src="https://raw.githubusercontent.com/UoM-ResPlat-DevOps/SpartanRegEx/master/Images/phpbadparts.jpg" />
+-- *Slide End* --
+
+-- *Slide* --
+## Part 4: RegEx in PHP
+* PHP has two types of regular expressions; POSIX-extended, and Perl-compatible. The Perl-compatible regexes must be enclosed in delimiters, but are more powerful.
+* There is also a number of string functions which can mimic basic sed functions.
+* POSIX-extended have been deprecated from PHP5.3+ and removed from 7.0+
+* Examples in `/usr/local/common/RegEx/php.md`, `posix.php`, and `pcre.php`.
+-- *Slide End* --
+
+-- *Slide* --
+## Part 4: RegEx in Python
+* Python has a built-in package called re, which can be imported to perform regular expressions.
+* The re package has a typical range of metacharacters, a number of special sequences, special issues with backslashes, and a range of regular expression methods.
+* Examples in `/usr/local/common/RegEx/python.md`
+-- *Slide End* --
+
+-- *Slide* --
+## Part 4: RegEx in Java
+* Java uses the java.util.regex package for regular expressions and has a similar syntax to what is used in Perl. 
+* Examples in `/usr/local/common/RegEx/java.md`
+-- *Slide End* --
+
+-- *Slide* --
+## Part 4: Simple RegEx
+* RegEx in all languages tends to be terse and hard to read. The Simple Regex Language (SRL) replaces the complex metacharacters with high-level language constructs.
+* Simple RegEx will help you understand complex regular expressions!
+* See `simpleregex.md`
+-- *Slide End* --
+
+-- *Slide* --
+## A Final Remark
+"If you have a problem and you think awk(1) [insert any regex] is the solution, then you have two problems." 
+-- David Tibrook (1989 Usenix Software Management Workshop, Under 10 Flags (not always smooth sailing)) (see: `http://regex.info/blog/2006-09-15/247`)
+* Keep your regexes simple, unless you *really* need something complex. Three readable and simple steps are better than one obsfucated and complex step.
+-- *Slide End* --
+
+-- *Slide* --
+## References
+* XKCD cartoon from Randall Munroe, https://xkcd.com
+* Set reference of Chomsky grammer by J. Finkelstein on Wikipedia, CC BY-SA 3.0
+* Dale Dougherty, Arnold Robbins, sed & awk (second edition), O'Reilly, 2000 FP 1997
+* Jeffrey E. F. Friedl, Mastering Regular Expressions (third edition), O'Reilly, 2006 FP 1997
+* Jan Goyvaerts, Regular Expression: The Complete Tutorial, 2007, FP 2006
+-- *Slide End* --
+
+-- *Slide* --
+<img src="https://raw.githubusercontent.com/UoM-ResPlat-DevOps/SpartanIntro/master/Images/hypnotoad.png" width="150%" height="150%" />
+-- *Slide End* --
+
 
 
 
