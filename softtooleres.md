@@ -2,8 +2,56 @@
 
 # Contents
 
-Regular Expression
-Git
+1. RST, MD, LaTex
+2. Git
+3. RegEx
+4. SQLlite
+5. Python
+Make
+
+# Introduction
+
+There are many suggestions of what sorts of software tools should be used by researchers. This includes some fairly obvious suggestions like Google Scholar or EndNote(TM), but of course that is the sort of thing that is by all researchers these days. Indeed, there is a bit of a challenge to distinguish between a "Researcher" and an "eResearcher", and the observation has been made that the latter is fairly widely used in Australia and New Zealand (where there are dedicated conferences with such a title), but not so much in the rest of the world.
+
+In an attempt to make the difference, an eResearcher specifically uses with electronic data, and reviews, extracts, and manipulates that data in some fashion that would not be viable by hand. There is an implicit association therefore, with issues related to "big data". In addition there are also the new educational methodologies such as "connectivism"; a collaborative research model mediated by communications and information technology.
+
+Research comprises "creative work undertaken on a systematic basis in order to increase the stock of knowledge, including knowledge of man, culture and society, and the use of this stock of knowledge to devise new applications."
+OECD (2002) Frascati Manual: proposed standard practice for surveys on research and experimental development, 6th edition. Retrieved 27 May 2012
+
+It is used to establish or confirm facts, reaffirm the results of previous work, solve new or existing problems, support theorems, or develop new theories. A research project may also be an expansion on past work in the field. 
+
+# Git
+
+## Version Control In General
+
+A version control system allows for changes to a file to be recorded, allowing for reversion if necessary. Whether a researcher is dealing with datasets, documents, or code this is obviously a very valuable tool. Not only can individual files be reverted to a previous state, so could an entire project. Further, assuming the use of plain-text, it is also possible to compare changes and, in a shared document collection, who made their changes. Compared with merely saving files, even with a datestamp (e.g., included in the file name) a version control is a much superior means to control data. It is, for example, very common to modify a file after the datestamp and not record the new change independently. The earliest version control systems, such as Source Code Control System (SCCS), developed by Marc Rochking in 1972 included all the key features of revision control.
+
+Another issue is that often groups of people which to collaborate on one or more files. A version control system in this case has to have a centralised repository, thus leading to various Centralised Version Control Systems (CVCSs). This includes older products such as Revision Control System (RCS), Concurrent Versions System (CVS) and relatively more recent systems like Subversion, which is still in active development. In this model the single repository holds all the versioned files and a users have a checkout and checkin process for the various files. The main problem with CVCSs is that the centralised repository is a central point of failure. If, for some reason, that centralised repository fails then the repository is lost (except if local snapshots have been made).
+
+In more recent years, Distributed Version Control Systems (DVCSs) have been developed as a way around this problem. With a DVCS one doesn't checks out the latest snapshot of files, rather they checkout the entire history. If the centralised repository is lost, for whatever reason, the entire repository can be restored by any user. Essentially it is a peer-to-peer, rather than a client-server model of versioning control, and allows for one to develop even when not connected to a network, which means that changes can be made independent of network latency. DVCSs also have the possibility of having more complex versioning workflows that simply aren't possible on CVCSs. DVCSs include products like BitKeeper, GNU Bazaar, and Mercurial, but the most famous product of this sort is Git, originally developed by Linus Tolvards in 2005, and the most famous repository host is github. As a result, these will be the examples used throughout this chapter.
+
+## Git States, Sections, and Workflow
+
+Most version control systems are orientated around storing information as changes to files. This makes some sense, because it from a first impression it is files that are changed. In git however, data is treated more like a filesystem. When changes are made, through a commit or other state change, git stores makes a snapshot and make a reference to that snapshot. If there are no changes, then the reference is applied to a previous snapshot. Further, git makes extensive use of checksums to ensure that changes are referenced. Information can't be changed or lost without git detecting the change.
+
+There are three main states that files reside in the git environment; committed, modified, and staged. Data which is committed means that it stored in the local database. Data which is modified has been changed but has not been committed to the database. Data which is staged means that a modified file has been marked to be committed.
+
+It is useful to conceptually associate the stages with the main sections of a git repository; the git directory, the working directory, and the staging agrea. The Git directory is where Git stores the metadata and object database for the project, and the working directory is a checkout of  (active) version of the project is located. These are taken from the database in the git directory for use and modification. Finally, the staging area is a file that stores information about what will go in the next commit.
+
+The basic workflow of git involves: (1) modifying files in a working directory., (2) staging the files and adding snapshot to the staging area., and (3) running a committ, which takes the files from the staging area and storing the snapshot permanently in the git directory.
+
+## Git Installation and Configuration
+
+For a Linux system, the simplist way to install Git is to use package management tool, which will vary according to the distribution. If one is using a RedHat-derived system (RHEL, CentOS, Fedora) one could use: `sudo yum install git-all`. For a Debian-derived system (Debian, Ubuntu, Mint) the equivalent would probably be: `sudo apt-get install git-all`.
+
+For MacOS there are a few options. Apple has its own fork of Git (`http://opensource.apple.com/source/Git/`), although there is lag with the mainline version. A better alternative would be to make use of the Xcode Command Line Tools; simply by trying to run git will initiate the installation process.
+
+Installation from source or on a MS-Windows system is not addressed here [EDIT]
+
+
+
+
+
 
 # Regular Expressions
 
@@ -476,6 +524,7 @@ For example:
 -- *Slide* --
 <img src="https://raw.githubusercontent.com/UoM-ResPlat-DevOps/SpartanRegEx/master/Images/phpbadparts.jpg" />
 -- *Slide End* --
+
 
 -- *Slide* --
 ## Part 4: RegEx in PHP
