@@ -48,7 +48,11 @@ For MacOS there are a few options. Apple has its own fork of Git (`http://openso
 
 Installation from source or on a MS-Windows system is not addressed here [EDIT]
 
+## Troubleshooting
 
+
+Problem: git pull error: “error: insufficient permission for adding an object to repository database .git/objects”
+Solution: $chown [current-user-name]:[group-name] .git/objects -R
 
 
 
