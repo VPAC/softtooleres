@@ -6,8 +6,9 @@
 2. Git
 3. RegEx
 4. SQLlite
-5. Python
-Make
+5. GNU Parallel
+6. Python
+7. Make
 
 # Introduction
 
@@ -20,7 +21,7 @@ OECD (2002) Frascati Manual: proposed standard practice for surveys on research 
 
 It is used to establish or confirm facts, reaffirm the results of previous work, solve new or existing problems, support theorems, or develop new theories. A research project may also be an expansion on past work in the field. 
 
-# Git
+# 2.0 Git
 
 ## Version Control In General
 
@@ -56,31 +57,230 @@ Solution: $chown [current-user-name]:[group-name] .git/objects -R
 
 
 
+Drake Asberry / dasberry@email.arizona.edu / he/him/his / @AsberryDrake / @drakeasberry
+Tobin Magle/ tobin.magle@wisc.edu / she/them / @tobinmagle
+Preethy Nair 
+Abhinav Mishra/ mishraabhinav36@gmail.com/ he, him / @shadytoyou (Twitter)
+Notes:
+This workshop is essentially the continuation of the SWC Git lesson: https://swcarpentry.github.io/git-novice/
 
-# Regular Expressions
+Picture from class is on GitHub: https://github.com/chendaniely/2020-07-16-CCatHome-git-dan/blob/master/whiteboard.png
+
+Carpentries blog post on how to fix someone's PR: https://carpentries.org/blog/2020/04/maintainers-git-skills/
+
+Software Carpentry notes on basic git: https://swcarpentry.github.io/git-novice/
+The setting up git has the commands to setup your name/email/editor: https://swcarpentry.github.io/git-novice/02-setup/index.html
+
+Review of cloning a repository and pushing a commit
+Best workflow: create empty repository on Github/BitBucket etc, then copy ("clone") to your computer
+This workflow ("cloning a repo") is not covered in the Software Carpentry instructions as it mainly shows how to create a Git repo locally and link it to Github. We will be doing "Github first".
+We start with creating a new repository, give it a name "2020-07-16-CCatHome-git-[yourname]"
+Leave the as repo public, click "Initialize with README"
+Click the "Code" button and copy the HTTPS URL
+Open up the Terminal or shell in your local computer
+Don't clone git repo into another one! Make sure you don't have nested git repositories (just like "git init" you only do it once ever)
+Dan recommends creating a folder called "git" in your root directory, then cloning things into there
+To open your Finder in Mac / file explorer in Windows, type "open ." or "explorer ." or "xdg -open ." in Linux
+To clone, "git clone [URL]" = downloads the repo from the web 
+cd into that directory
+nano README.md -- add some notes about what you're doing 
+git status
+git add README.md
+git commit -m"talked about git clone"
+git remote -v (this shows the remote Github URL)
+git push origin master
+Branching / Making a branch:
+Why use a branch? It enables you to go back to a pre-defined point before you try some experimental things, and it allows you to collaborate confidently without!
+Branch = A label for a series of commits 
+git --version (some of the prompts in the newer version are going to be a bit different - you don't have to update Git now - or ever! - but the prompts may not be the exactly the same, FYI)
+git branch my_first_branch (create a branch)
+git branch -a (list all branches, the one that is green/has a star next to is the one you're on)
+git status (you see that "On branch master" is the branch you're on)
+git log --oneline --graph --decorate --all (this shows you the entire tree)
+git checkout my_first_branch (standard way to checkout branch), new command is git switch my_first_branch (git switch will only work if you installed Git after August 2019)
+Repeating the push workflow...
+nano README.md (let's add a note to the README about what we learned)
+git status
+git diff README.md
+git add README.md
+git commit -m "A commit on a branch!"
+git log --oneline --graph --decorate --all (this shows you the entire tree)
+you can make this shorter by creating git aliases
+https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases
+git config --global alias.l "log --oneline --graph --decorate --all"
+git push origin my_first_branch
+ (note that it's not "origin master" - if you're not used to working with branches, you may be tempted to type "origin master") 
+Good tip from Dan: if you can draw out the Git problem you're having visually - on a whiteboard, chances are you can figure out the command you need to fix things!
+We then merged a PR from our branch into master, issuing a review on Github in the process, then deleted our extra branch
+Pulling our merged changes from Github:
+cat README.md
+git pull origin master
+
+Exercise 1
+1. create a new branch
+2. go to the new branch
+3. edit README.md with text
+(talkl about fetch --prune,
+and the log command and
+deleting branches
+)
+
+4. push branch to github
+5. create pr
+6. merge PR
+7. update and clean up your branches on
+local computer
+
+
+Exercise 1 answers:
+git checkout -b creating_branches (this allows you to create + switch to the branch in one go)
+nano README.md (open up text editor to add a note)
+git fetch --prune (will update your local git tree with the remote. this will also delete references to branches that were deleted on the remote)
+git stash (saves your temp changes when you switch branches)
+git stash apply (apply your stashed changes)
+git add / git commit / git push workflow
+Merge PR on Github to master (you can even leave yourself a review!), then come back to local shell to pull changes and delete branch
+git checkout master
+git fetch --prune
+git branch -a
+git pull origin master
+git branch -d creating_branches (delete local copy of remotely deleted branch)
+When someone needs to make changes to their PR, they can continue to work on branch, do not need to create a new PR
+When you merge PRs, you generally want "create a merge request" aka the default - "squash and merge" creates pretty commits, "rebase and merge" is useful when you have merge conflicts
+
+Rebasing 
+This is useful when you have merge conflicts
+git rebase
+git rebase --abort (will bring things back to normal, safety hatch for rebasing)
+git rebase --continue
+this takes care of what is on your local computer
+to update on your remote (on github) - can't use git push origin change_title_2
+this will give you an error because the history is different, but this is actually what you want to do, so use -f (force) flag
+git push -f origin change_title_2
+then do your cleanup steps 
+git pull origin master
+git fetch --prune
+git branch -d change_title_2
+
+Different workflows
+Centralized workflow - everyone who is working on the project has merge access! 
+Problem with this is that everyone is working on the master branch. 
+No enforcement of code review. 
+Can enforce code review on certain branches in GitHub settings
+Feature branch workflow - no one can push directly to master
+Requires code review
+Git flow - standardized way of naming branches
+master branch stores official release history - tagged with version number
+develop branch serves as integration branch for features
+most work happens on develop branch
+Forking workflow - Requires most collaborators to fork rather than branch
+This is the workflow used on Carpentries lessons
+People who don't have write access can't make branches, need to fork
+Forking creates a copy of the repo in their own GitHub account - you can do whatever you want with this copy
+Common model for open source projects
+Naming conventions:
+origin = the remote repository you have push access to
+upstream = the remote repository that you forked from 
+To keep your fork in synch with the official lesson repo - you pull from upstream and you push to origin (and then submit a pull request to upstream)
+
+Using forking workflow:
+Create a fork of the repository you want to work with (top right corner "fork" button)
+Clone to your computer - click "Code", copy the ssh url, in terminal "git clone <url>"
+Set the upstream by using 
+git remote add upstream <url of official repo>
+Now work as you would normally
+
+
+Questions from participants:
+Could you please explain branching v forking?  Not the how, but the why?  We have about half who like to fork and half who like to branch and I don’t get why some folks do one over the other.
+Forks are copies of the repo in your own account. Mandatory if you’re not part of the organization that owns the original repository. I had to fork to submit my pull requests for checkout.
+i am getting an error message on switch / "git switch" doesn't work for older version
+Nope, you can use git checkout instead :) git switch is a new function and only works if you installed Git after Aug 2019
+should we update git? can’t believe i never even considered it...
+If you want to use git switch, maybe!
+A currently important question for me right now: can I rename my git repo locally and then still push it to my remote origin that still has the same name?
+Yes, if you cloned from Git, I think Git has the remote URL stored…(see git remote -v) I know the other way around works, too! You’ll just get a message warning you and telling you to change the name\00l
+
+A good workflow for renaming:
+git remote -v
+git remote rm origin
+git remote add <URL> (the one you copy from the green button on the repo)
+The official way to do it: git remote set-url alias url, 
+Or: git remote set-url <>` will update origin
+There is a large controversy over git pull versus a git fetch then git merge within my collaboration circles. Is there a benefit too doing one over the other?
+git pull does both, generally good enough for all purposes
+git fetch / merge is if you need to delete references or get references to something (a little more manual)
+Question - I know that git has some automatic assumptions about what origin and master are if you just do “git pull” or “git push” without specifying. Could you talk about what that is and whether we should use that? I admit I always just do a bare “git pull” or “git push” without specifying origin and master. Should I?
+There is no difference when you're working on master. If you're just working on master and not branches, just use git push/pull without "origin master" bit
+However, when you're on a branch, get into the habit of not relying on the default. This forces you to slow down and think, what am I actually doing 
+Question - is your fork your remote? 
+Yes - your fork becomes your remote! Will talk about naming conventions for remotes soon. 
+Question - I’ve never actually set the upstream when working with the fork workflow on a Carpentries lesson, and everything seems to work . . . (I usually make changes locally, then push to my fork, then make a PR on GitHub). Is there a reason to set the upstream?\00i
+
+
+Notes / resources from participants:
+Working tree, staging, repo: https://medium.com/@lucasmaurer/git-gud-the-working-tree-staging-area-and-local-repo-a1f0f4822018
+For Carpentries lessons - all Maintainers for that lesson have merge permissions :-)\00 
+ And we’ve also implemented automatic branch deletions after resolve, so you don’t need to worry about deleting branches
+
+Git workflow notes and commands (to paste on your wall)
+https://chendaniely.github.io/training_ds_r/help-faq.html
+Atlassian page on git workflows: https://www.atlassian.com/git/tutorials/comparing-workflows
+
+Some nice things to look up to get a nice pretty terminal prompt:
+Getting your (bash) terminal to show current path and other things:
+Use this to create your PS1 variable: http://bashrcgenerator.com/
+
+Show git branch in terminal:
+In addition you can write a function and put that in your PS1 to also show git branch
+https://gist.github.com/joseluisq/1e96c54fa4e1e5647940
+
+
+git log --oneline --graph --decorate --all
+
+
+
+# 3.0 Regular Expressions
+
+## UNIX Loves Text
+
+Why do UNIX-like operating systems make extensive use of text files?
+
+ASCII plain-text is a simple format that is accessible to many tools. Unlike other file formats (e.g., various binary files) text does not have to worry about padding bytes or whether it is ordered against most or least significant bytes in memory (endianness), making them adaptable across different computer architectures. If data corruption occurs, it is easier to recover the remaining data. For users, a very significant advantage is the fact that basic tools in the operating system make use of text files including those in regular expressions (e.g., grep, sed, awk) and, of course, they are readable by the human user which is important when dealing with source code. Plain text can be encoded by an application, but unless the application is available, decoding can be challenging. As a result of all these features, text files can persist over time much better than other formats. A disadvantage of text files is that can occupy greater storage than a compressed binary format. Note that binary executables are often larger than source code because they include the libraries invoked by the source code). 
+
+Consider the following passage from Thomas Paine's Agrarian Justice (1797).
+
+"There could be no such thing as landed property originally. Man did not make the earth, and, though he had a natural right to occupy it, he had no right to locate as his property in perpetuity any part of it; neither did the creator of the earth open a land-office, from whence the first title-deeds should issue. Whence then, arose the idea of landed property? I answer as before, that when cultivation began the idea of landed property began with it, from the impossibility of separating the improvement made by cultivation from the earth itself, upon which that improvement was made. The value of the improvement so far exceeded the value of the natural earth, at that time, as to absorb it; till, in the end, the common right of all became confounded into the cultivated right of the individual. But there are, nevertheless, distinct species of rights, and will continue to be so long as the earth endures."
+
+As a text file, this occupies 911 bytes of data (ls -l agrarian.txt). If this is saved as a binary image file in the png format (mainly due to ignorance, sometimes due to malice, people do save text as images) it occupies 76777 bytes (ls -l agrarian.txt). One cannot search the text either with standard utilities nor select and paste parts into different documents etc. Whilst text readers are ubiquitous across operating systems and computer architectures, png is a relatively recent format and requires an executable application that can read such files. If compressed the text file will be smaller still (e.g., tar cvfz agrarian.tgz agrarian.txt, ls -l agrarian.tgz, 911 bytes vs 200 bytes). However, it is not very readable:
+
+$ cat agrarian.tgz 
+9W�a�α�P��+
+��٪���`����r�>�Ht�Աm6F|�,��Y�ǧ󾚲�y�Q�r}o��,]%WX�[�^�k��Q��z�x�
+���R[���O�?���?ɵ�_�f�8�ѪϏ,��.�����#�����(
+
+Whilst text files are an excellent format to store and express data, typically when one is analysing data they wish to find information. This is not something that is simply achieved when one is looking in a very large collection of text files. Searching for particular sequences of characters is a typical task, but there are often rules included in that task, such as a fixed string or whether it is preceded or followed by additional characters. Such searches and the manipulation of text are the subjects of discussion.
+
+It must be mentioned that binary formats certainly do have their place. It is from binary formats of files associated with applications that visualisation often occurs, such as the file formats from molecular modelling or fluid mechanics. Often these are tied with text files for their initial state but the dynamic results of the simulation are stored in a binary format.
 
 ## What Are Regular Expressions?
 
-Regular Expressions ("RegEx") are general character pattern notations that provides the means for efficient and effective text processing. The main use is search, replace, and validation functions, which can - at least in part - be achieved through a variety of text editors. However, compared to various RegEx tools, using a text editor is a fairly labour intensive process. For researchers, especially those whose work involves a great deal of data extraction and manipulation, having a good grasp of regular expressions is one of the most powerful tools available.
+Regular Expressions ("RegEx") are general character pattern notations that provide the means for efficient and effective text processing. The main use is search, replace, and validation functions, which can - at least in part - be achieved through a variety of text editors. However, compared to various RegEx tools, using a text editor is a fairly labour intensive process. For researchers, especially those whose work involves a great deal of data extraction and manipulation, having a good grasp of regular expressions is one of the most powerful tools available.
 
-The origins of regular expressions come from a combination of mathematics, linguistics, and computer science. The first formal development was by Stephen Cole Kleen who described a mathematical "regular language" in 1951 that would be located as a Type-3 grammer in the hierarchy developed by Noam Chomsky in 1956, which a finite-state machine will recognise.
+The origins of regular expressions come from a combination of mathematics, linguistics, and computer science. The first formal development was by Stephen Cole Kleen who described a mathematical "regular language" in 1951 that would be located as a Type-3 grammar in the hierarchy developed by Noam Chomsky in 1956, which a finite-state machine will recognise.
 
 <img src="https://raw.githubusercontent.com/UoM-ResPlat-DevOps/SpartanRegEx/master/Images/chomsky-hierarchy.png" /> 
 
-> Fun fact. Stephen Cole Kleene also wrote an alternative proof to Gödel's incompleteness theorems that were easier to understand. From this it has been quipped that "Kleeneness is next to Gödelness".   
+> Fun fact. Stephen Cole Kleene also wrote an alternative proof to Gödel's incompleteness theorems that were easier to understand. From this, it has been quipped that "Kleeneness is next to Gödelness".
 
-The first major computational use was in 1968 through pattern matching in the QED ("quick editor") text editor. QED was originally written in 1965 and was designed for teleprinter usage. When Ken Thompson wrote a version for the Compatible Time-Sharing System (CTSS) in 1968 a level of regular expressions were introduced. At around the same researchers, including Douglas T. Ross, implemented a regular expression engine in compiler design.
+A regular language is a language that with symbolic characters that concatenate into strings of the language and are well-formed according to a specific set of rules, and which can be defined by a sequence of characters that specifies a search pattern. Note that regular expression utilities contain additional searching features.
+   
+The first major computational use was in 1968 through pattern matching in the QED ("quick editor") text editor. QED was originally written in 1965 and was designed for teleprinter usage. When Ken Thompson wrote a version for the Compatible Time-Sharing System (CTSS) in 1968 a level of regular expressions was introduced. Around the same researchers, including Douglas T. Ross, implemented a regular expression engine in compiler design.
 
-The regular expression system in QED was ported to `ed` in 1969 to become a foundation of the UNIX operating system. Within `ed` the function for searches was `g/re/p`, "global search for regular expreesion and print (to standard output). The functionality was considered so useful that Ken Thompson used the logic from `ed` and wrote the first version of`grep` overnight in November 1974.
+The regular expression system in QED was ported to `ed` in 1969 to become a foundation of the UNIX operating system. Within `ed` the function for searches was `g/re/p`, "global search for regular expression and print (to standard output). The functionality was considered so useful that Ken Thompson used the logic from `ed` and wrote the first version of `grep` overnight in November 1974.
 
-Apart from `grep`, other major applications in the regular expression wolrd include `sed` ("stream editor", 1974), `awk` (named after its authors "Aho, Weinberger, Kernighan", a data-driven scripting language, first release 1977), `perl` (often given the common backronym "Practical Extraction and Reporting Language", first released 1987). Many other programming languages use regular expression engines, but the aforementioned are considered the main foundations.
+Apart from `grep`, other major applications in the regular expression world include `sed` ("stream editor", 1974), `AWK` (named after its authors "Aho, Weinberger, Kernighan", a data-driven scripting language, first release 1977), `perl` (often given the common backronym "Practical Extraction and Reporting Language", first released 1987). Many other programming languages use regular expression engines, but the aforementioned are considered the main foundations
 
-Various UNIX-derived operating systems are famous for an orientation towards plain-text, especially as a file format for data, configuration, and of course, commans. UNIX loves text! This provides opportunities for a great deal of power and discovery, but also for obsfucation.
-
-> The string is a stark data structure and   
-everywhere it is passed there is much duplication of process.   
-It is a perfect vehicle for hiding information.    
---Alan Perlis
 
 ## Metacharacters
 
@@ -90,7 +290,7 @@ The POSIX standard (basic and extended) has some 14 metacharacters. In this stan
 
 The entire suite of metachaarcters that require an escape for their literal include opening and closing normal, and curled brackets, the caret, the dollar sign, the period, the bar, question mark, asterisk, the plus sign, and the backslash i.e. "(", "{" "}", ")", "^", "$", ".", "|", "?", "*", "+", "\". 
 
-In addition to these metacharacters there are also metacharacters that are not escaped by the backslash. This includes the aforementioned normal and curled bracket characters and the `-` character which is used to indicated ranges within a square-bracket set.
+In addition to these metacharacters there are also metacharacters that are not escaped by the backslash. This includes the aforementioned normal and curled bracket characters and the `-` character which is used to indicated ranges within a square-bracket set. Searches for metacharacters in their literal form can also be conducted in a square-bracket set without being escaped (e.g., <code>grep '[\2^] filename</code>.</p>
 
 Metacharacters are so important to understanding regular expressions and so common across the core applications it is worth establishing a thorough understanding of them early. The following outlines the major metacharacters, their meaning, and an example using the search utility `grep`. Note that a metacharacter can have different meanings *within* regular expressions. The caret symbol, can either stands as beginning of a line anchor *and* a negation symbol in a set range. Like other *nix-like system this environment is case-sensitive. Metacharacters that are used outside of their context, even within a regular expression, will be treated as literal character.
 
@@ -230,7 +430,7 @@ Try these commands with the gattaca.txt file e.g.,
 | Command                   | Explanation                                                                  |
 |---------------------------|:-----------------------------------------------------------------------------|
 | `sed 's/^/     /'`        | Insert five whitespaces at the beginning of every line.                      | 
-| `sed '/baz/s/foo/bar/g'   | Substitute all instances of 'foo' with 'bar' on lines that start with 'baz'  |
+| `sed '/baz/s/foo/bar/g'`  | Substitute all instances of 'foo' with 'bar' on lines that start with 'baz'  |
 | `sed '/baz/!s/foo/bar/g'` | Substitute "foo" with "bar" except for lines which contain "baz"             |
 | `sed /^$/d`               | Delete all blank lines.                                                      |
 | `sed s/ *$//`             | Delete all spaces at the end of every line.                                  |
@@ -287,7 +487,6 @@ The above example could be re-written as:
 
 **Selections in sed**
 
-
 Occurances and lines can be specified with sed. For example, the second instance of A can be replacd with T with the following command:
 
 `sed 's/A/T/2' simple1.txt`
@@ -315,7 +514,7 @@ One can add new material to a file in such a manner with the insert option:
 
 `sed '1,2 i\foo' file` or `sed '1,2i foo' file` 
 
-**Multiple Commands and Backrefences**
+**Multiple Commands**
 
 Multiple commands in sed can be applied with the -e option or with semi-colon separation between commands.
 
@@ -323,33 +522,45 @@ The following selectively prints lines 1,2 and 5,6.
 
 `sed -n '1,2p; 5,6p' file` or `sed -n -e '1,2p' -e '5,6p' file`  
 
+**Backrefences**
+
 Like the ampersand metacharacter, a backreference defines a region in a search and then allows that region to be backreferenced. A statement with a backreference is actually beyond being a regular language.
 
 Regions are established by parentheses and then referenced by \1, \2 etc. For example;
 
 `sed -E 's/([A-Z]*)([A-Z]*)([A-Z]*)/First Column \1 Second Column \2 Third Column \3/' gattaca.txt`
 
-## Reporting Structured Data with `awk`
+**Parallel sed**
 
-As a data driven programming language `awk` is particularly good at understanding and manipulating text structured by fields - such as tables of rows and columns. Unlike `grep`, which searches for strings from an input, or `sed`, which carries out editing on the same, `awk` offers more computational options. The organisation of an `awk` program follows the form: pattern { action }. This is sometimes structured with BEGIN and END which specify actions to be taken before any lines are read, and after the last line is read. 
+Parallel sed is particularly helpful if one has a very large file that requires a regular expression edit. A simple example would be to remove dollar signs from file, which would normally be carried out with <code>sed 's/\$//g' filename</code>. Like with grep, making use of the GNU parallel suite can improve speed.
 
-There are many variants of awk, but the most common is GNU awk (often called 'gawk'). This resource is written with GNU awk assumed. To check that you have this, run the version command.
+sinteractive -n8
+module purge
+module load foss/2019b
+module load parallel/20190922
+parallel -j200% --pipe --block 2M LC_ALL=C --pipe sed 's/\$//g' < bigfile
+
+## Reporting Structured Data with `AWK`
+
+As a data driven programming language `AWK` is particularly good at understanding and manipulating text structured by fields - such as tables of rows and columns. Unlike `grep`, which searches for strings from an input, or `sed`, which carries out editing on the same, `AWK` offers more computational options. The organisation of an `AWK` program follows the form: pattern { action }. This is sometimes structured with BEGIN and END which specify actions to be taken before any lines are read, and after the last line is read. 
+
+There are many variants of AWK, but the most common is GNU AWK (often called 'GAWK'). This resource is written with GNU AWK assumed. To check that you have this, run the version command.
 
 `awk --version`
 
 **Internal Field Separator**
 
-The easiest and certainly one of the most common uses of awk is create reports from structured data.
+The easiest and certainly one of the most common uses of AWK is create reports from structured data.
 Columns and rows are referenced by number (e.g., `print $1` for the first column, `NR>1` for all rows greater than 1) and by default the space acts as the delimiter. To modify this use `awk -F,` (or `awk -F ','`) to use, for example, the comma as the delimiter. Other shell commands can be included in `awk`. 
 
-By default awk uses a space as the internal field separator. To use a comma invoke with `-F` e.g. `awk -F"," '{print $3}' quakes.csv`
+By default AWK uses a space as the internal field separator. To use a comma invoke with `-F` e.g. `awk -F"," '{print $3}' quakes.csv`
 
 Adding new separators to the standard output print of multiple fields is recommended - otherwise AWK will print without any separators. For example; 
 
 `awk -F"," '{print $1 " : " $3}' quakes.csv`
 `awk -F"," '{print $1 "\t" $3}' quakes.csv`
 
-Other shell commands can be piped through awk
+Other shell commands can be piped through AWK
 
 `awk -F"," '{print $1 " : " $3 | "sort"}' quakes.csv | less`
 
@@ -383,9 +594,10 @@ The printf can add text to a file.
 
 `awk 'BEGIN{printf "The nucleotide data is in the second line following, the sixth line, etc.\n"}{print}' test-high-gc-1.fastq | less`
 
+
 **References**
 
-A collection of `awk` one-liners are at: `http://www.pement.org/awk/awk1line.txt`. The file test-high-gc-1.fastq is from Washington State University, Data Progamming Course.
+A collection of `AWK` one-liners are at: `http://www.pement.org/awk/awk1line.txt`. The file test-high-gc-1.fastq is from Washington State University, Data Progamming Course.
 
 ## Basic and Extended Regular Expressions
 
@@ -464,6 +676,24 @@ An example to append the string "EXTRA TEXT" to each line.
 
 sed -e 's/\(.*\)/\1EXTRA TEXT/'
 
+
+**AWK**
+
+As a data driven programming language `awk` is particularly good at understanding and manipulating text structured by fields - such as tables of rows and columns. 
+
+The organisation of an AWK program follows the form: pattern { action }. This can be structured with BEGIN and END which specify actions to be taken before any lines are read, and after the last line is read. i.e.,
+
+BEGIN {awk commands} /pattern/ {awk commands} END {awk commands}
+
+A collection of `awk` one-liners are at: `http://www.pement.org/awk/awk1line.txt`.
+
+The file test-high-gc-1.fastq is from Washington State University, Data Progamming Course.
+
+There are many variants of awk, but the most common is GNU awk (often called 'gawk'). This resource is written with GNU awk assumed. To check that you have this, run the version command.
+
+`awk --version`
+
+
 **The awk programming language and ERE**
 
 Contemporary implementations of awk language uses the ERE engine to process regular expression patterns.
@@ -477,24 +707,69 @@ For example:
 `awk '/QL\QA$/' gattaca.txt` will be treated like `awk '/QLQA$/' gattaca.txt` in most contemporary versions of awk. Some however will treat `awk '/QL\QA$/' gattaca.txt` and `awk '/QL\\QA$/' gattaca.txt` as equivalent.
 
 
-* A regular expression is limited by a finite number of internal states and termination states. A lot of code (e.g., html), scripts, or programming languages, that can nest arbitrarily deep, and the expression will need to have a means to recall the previous elements that it has opened (in html, for example). 
-* This said, arbitrary elements can be parsed with a regular expression. It requires several steps and will probably require some hand-editing. Works OK for small-scale changes! e.g., `http://levlafayette.com/node/128`
-* READ: `http://htmlparsing.com/regexes.html`
-* Consider using a language-approriate parser instead (e.g., HTML Tidy, lex/yacc/bison, ANTLR etc)
+### Limitations of Regular Expressions
+
+A regular expression is limited by a finite number of internal states and termination states. A lot of code (e.g., html), scripts, or programming languages, that can nest arbitrarily deep, and the expression will need to have a means to recall the previous elements that it has opened (in html, for example). 
+
+This said, arbitrary elements can be parsed with a regular expression. It requires several steps and will probably require some hand-editing. Works OK for small-scale changes! e.g., `http://levlafayette.com/node/128`
+
+READ: `http://htmlparsing.com/regexes.html`
+
+Consider using a language-approriate parser instead (e.g., HTML Tidy, lex/yacc/bison, ANTLR etc)
+
+https://raw.githubusercontent.com/UoM-ResPlat-DevOps/SpartanRegEx/master/Images/regexhtml.png
+
+### Scripting Regular Expressions
+
+Shell scipts allow for automation of commands, which provides a great deal of power to the user. A simple script is a text file that invokes a shell (such as bash) and runs the commands listed. However, scripts can also make use of shell-assigned variablles, loops, conditional branching, functions and more. When combining shell scripting with regular expressions the user must be aware that the shell environment has its own metacharacters which differ from the regular expression metacharacters. Further, because all HPC job submissions are shell scripts with additional directives to the scheduler, one can mix HPC jobs with shell scripts with regular expression scripts and command.
+
+Using the example of parallel sed, consider the file "bigfile". It is probably unusual that a file has such a name, but that can be used as a variable for a real file name. The following example creates eight files as a job array
+
+#!/bin/bash
+#SBATCH --job-name="file-array"
+#SBATCH --ntasks=2
+#SBATCH --time=0-00:15:00
+#SBATCH --array=1-5
+
+# First, create a file of random alphanumeric ASCII characters. 
+
+shuf -n 10000 /usr/share/dict/words | fmt -w 72 > random${SLURM_ARRAY_TASK_ID}.txt
+
+# Assign the variable
+$bigfile=random${SLURM_ARRAY_TASK_ID}.txt
+
+# Load modules
+module purge
+module load foss/2019b
+module load parallel/20190922
+
+# Run the command; call a sed script
+parallel -j200% --pipe --block 2M LC_ALL=C --pipe 'sed -i -f changes.sed random${SLURM_ARRAY_TASK_ID}.txt'
+
+The last command is a sed invoking a sed script. A sed script is simply as series of sed commands a stand-alone file. e.g.,
+
+gat ta ca
+
+$ cat changes.sed
+s/GA/\$1/gI
+s/TA/\$2/gI
+s/CA/\$3/gI
+
+The same sed script could be expressed as shell script as well. Note that the sed command content is quoted in the shell script to ensure what is included is not interpreted by the shell.
+
+$ cat changes.sh
+#!/bin/bash
+sed -i '
+s/GA/\$1/gI
+s/TA/\$2/gI
+s/CA/\$3/gI
+' "$@"
+
+If the order that these changes were made, the job could be run as a loop or with job dependencies. For example
+
+for item in ./*.txt ; do parallel -j200% --pipe --block 2M LC_ALL=C 'sed -i -f changes.sed random{1..5}.txt'; done
 
 
-
--- *Slide* --
-<img src="https://raw.githubusercontent.com/UoM-ResPlat-DevOps/SpartanRegEx/master/Images/regexhtml.png" /> 
--- *Slide End* --
-
--- *Slide* --
-## Part 2: Shells and Shell Scripting
-* Variety of shells; sh, bash, csh, tcsh, ksh, zsh, fish, nadvsh. Environment modification. 
-* Shell scripting allows for automation; variables, loops, conditionals, functions.
-* Elaboration and examples in `/usr/common/common/RegEx/scripting.md`
-* Remember `awk` is a fully-fledged programming language. See `/usr/local/common/RedEx/advawk.md`
--- *Slide End* --
 
 -- *Slide* --
 <img src="https://imgs.xkcd.com/comics/regex_golf.png" />
@@ -577,6 +852,144 @@ For example:
 -- *Slide* --
 <img src="https://raw.githubusercontent.com/UoM-ResPlat-DevOps/SpartanIntro/master/Images/hypnotoad.png" width="150%" height="150%" />
 -- *Slide End* --
+
+
+# 5.0 GNU Parallel
+
+Having multiple processes process the same file is hugely suboptimal anyway; just generate a single sed script and then run it once. Or if you really want to parallelize, split the input file into smaller pieces, run the generated sed script on each in parallel, and then concatenate them back when you are done.
+
+Parallel processing helps when your task is CPU bound, but this one is I/O bound; you are simply creating congestion by having several processes fight over the access to bytes from the disk, and then in this case also fighting over write access back to the same file.
+
+# 6.0 Python
+
+## Python
+
+Operations with integers:
+>>> # This is a comment
+>>> width = 20
+>>> height = 5*9
+>>> width * height
+900
+
+
+Complex numbers:
+>>> a=1.5+0.5j
+>>> a.real
+1.5
+>>> a.imag
+0.5
+>>> abs(a)
+# sqrt(a.real**2 + a.imag**2)
+5.0
+f f
+
+Strings manipulation:
+>>> word = 'Help' + 'A'
+>>> word
+'HelpA'
+>>> word[4]
+'A'
+>>> word[0:2]
+'He'
+>>> word[-1]
+# The last character
+'A'
+f f
+
+Defining lists:
+>>> a = ['spam', 'eggs', 100, 1234]
+>>> a[0]
+'spam'
+>>> a[3]
+1234
+>>> a[-2]
+100
+>>> a[1:-1]
+['eggs', 100]
+>>> len(a)
+4
+
+
+
+The while loop:
+# Fibonacci series:
+>>> while b < 10:
+... print b
+... a, b = b, a+b
+...
+1
+1
+2
+3
+5
+8
+
+
+The if command:
+First we use the input() statement to insert an integer:
+>>>x = int(input("Please enter an integer here: "))
+Please enter an integer here:
+Then we implement the if condition on the number inserted:
+>>>if x < 0:
+...
+print ('the number is negative')
+...elif x == 0:
+...
+print ('the number is zero')
+...elif x == 1:
+...
+print ('the number is one')
+...else:
+...
+print ('More')
+...
+
+The for loop:
+>>> # Measure some strings:
+... a = ['cat', 'window', 'defenestrate']
+>>> for x in a:
+...
+print (x, len(x))
+...
+cat 3
+window 6
+defenestrate 12
+
+
+
+
+Defining functions:
+>>> def fib(n):
+# write Fibonacci series up to n
+... """Print a Fibonacci series up to n."""
+... a, b = 0, 1
+... while b < n:
+... print (b),
+... a, b = b, a+b
+...
+>>> # Now call the function we just defined:
+... fib(2000)
+1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597
+
+
+Importing modules:
+>>> import math
+>>> math.sin(1)
+0.8414709848078965
+>>> from math import *
+>>> log(1)
+0.0
+
+Defining classes:
+>>> class Complex:
+...
+def __init__(self, realpart, imagpart):
+... self.r = realpart
+... self.i = imagpart
+...
+>>> x = Complex(3.0, -4.5)
+>>> x.r, x.i
+(3.0, -4.5)
 
 
 
